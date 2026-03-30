@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verdure — Restaurant Healthy Genève</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --forest:#1a3a2a;--forest-m:#2a5a3e;--forest-l:#3a7a52;
+  --mint:#4a9e6a;--mint-l:#7ac496;--mint-ll:#b8dfc8;
+  --cream:#f8f4ee;--warm:#f0e8d8;--white:#fff;
+  --charcoal:#1c1c1a;--mid:#6a6a60;--light:#e0d8c8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);overflow-x:hidden;cursor:none;}
+
+/* ─── CURSOR ─── */
+.cur{position:fixed;width:12px;height:12px;background:var(--mint);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+.cur-r{position:fixed;width:40px;height:40px;border:1.5px solid var(--forest);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.35;transition:width .3s,height .3s,opacity .3s,border-color .3s;}
+.cur-r.hov{width:64px;height:64px;opacity:.15;border-color:var(--mint);}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;padding:24px 64px;display:flex;align-items:center;justify-content:space-between;transition:all .5s;}
+nav.scrolled{background:rgba(248,244,238,.95);backdrop-filter:blur(20px);padding:16px 64px;border-bottom:1px solid rgba(74,158,106,.15);}
+.logo{font-family:'Fraunces',serif;font-size:24px;font-weight:400;font-style:italic;color:var(--white);text-decoration:none;transition:color .3s;letter-spacing:.02em;}
+nav.scrolled .logo{color:var(--forest);}
+.nav-links{display:flex;gap:36px;list-style:none;}
+.nav-links a{font-size:13px;letter-spacing:.08em;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+nav.scrolled .nav-links a{color:var(--mid);}
+.nav-links a:hover{color:var(--mint) !important;}
+.nav-reserve{padding:12px 28px;background:rgba(255,255,255,.15);color:var(--white);border:1.5px solid rgba(255,255,255,.3);font-size:13px;letter-spacing:.08em;text-decoration:none;border-radius:100px;backdrop-filter:blur(8px);transition:all .25s;}
+nav.scrolled .nav-reserve{background:var(--forest);color:var(--white);border-color:var(--forest);}
+.nav-reserve:hover{background:var(--mint);border-color:var(--mint);color:var(--white) !important;}
+
+/* ─── HERO ─── */
+.hero{height:100vh;position:relative;overflow:hidden;display:flex;align-items:center;background:var(--forest);}
+
+/* Breathing blob */
+.blob-container{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:5%;}
+.blob-svg{width:55%;height:80%;opacity:.18;}
+
+/* Grain */
+.grain{position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:250px;pointer-events:none;}
+
+/* Botanical floaters */
+.bota{position:absolute;pointer-events:none;}
+.bota-1{top:8%;right:8%;opacity:.12;}
+.bota-2{bottom:12%;right:22%;opacity:.08;}
+.bota-3{top:30%;right:38%;opacity:.06;}
+
+/* Hero content */
+.hero-inner{position:relative;z-index:2;padding:0 64px;max-width:820px;}
+.hero-label{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.hero-dot{width:8px;height:8px;background:var(--mint);border-radius:50%;animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:.5;}}
+.hero-label-txt{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mint-l);}
+.hero-h1{font-family:'Fraunces',serif;font-size:clamp(64px,8vw,120px);font-weight:300;line-height:.95;color:var(--white);margin-bottom:32px;overflow:hidden;}
+.hero-h1-line{display:block;overflow:hidden;}
+.hero-h1-inner{display:block;transform:translateY(110%);} /* GSAP will animate */
+.hero-sub{font-size:17px;color:rgba(255,255,255,.5);line-height:1.8;font-weight:300;max-width:480px;margin-bottom:52px;opacity:0;}
+.hero-btns{display:flex;gap:16px;align-items:center;opacity:0;}
+.btn-mint{display:inline-flex;align-items:center;gap:12px;padding:18px 44px;background:var(--mint);color:var(--white);font-size:13px;letter-spacing:.08em;text-decoration:none;border-radius:100px;transition:all .3s;}
+.btn-mint:hover{background:var(--mint-l);transform:translateY(-3px);box-shadow:0 20px 48px rgba(74,158,106,.4);}
+.btn-arrow{font-size:18px;transition:transform .3s;}
+.btn-mint:hover .btn-arrow{transform:translateX(4px);}
+.btn-ghost{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;letter-spacing:.04em;}
+.btn-ghost:hover{color:var(--mint-l);}
+
+/* Hero scroll line */
+.hero-scroll{position:absolute;bottom:40px;left:64px;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.hs-line{width:1px;height:60px;background:linear-gradient(var(--mint),transparent);animation:hs-anim 2s ease infinite;}
+@keyframes hs-anim{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}51%{transform:scaleY(1);transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
+.hs-txt{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.25);}
+
+/* Hero image pill */
+.hero-img-pill{position:absolute;right:64px;top:50%;transform:translateY(-50%);width:340px;height:460px;border-radius:200px;overflow:hidden;z-index:2;opacity:0;}
+.hero-img-pill img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform 8s ease;transform:scale(1.1);}
+
+/* ─── MARQUEE ─── */
+.marquee-wrap{background:var(--mint);padding:18px 0;overflow:hidden;position:relative;}
+.marquee-track{display:flex;gap:0;white-space:nowrap;animation:marquee 30s linear infinite;}
+.marquee-item{display:inline-flex;align-items:center;gap:24px;padding:0 24px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85);}
+.marquee-sep{color:rgba(255,255,255,.4);font-size:8px;}
+
+/* ─── SECTION BASE ─── */
+.sec{padding:112px 64px;}
+.sec-dark{background:var(--forest);}
+.sec-warm{background:var(--warm);}
+.sec-white{background:var(--white);}
+
+.tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mint);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.tag::before{content:'';width:28px;height:1.5px;background:var(--mint);}
+.tag-light{color:var(--mint-l);}
+.tag-light::before{background:var(--mint-l);}
+
+.h2{font-family:'Fraunces',serif;font-size:clamp(40px,4.5vw,68px);font-weight:300;line-height:1.05;margin-bottom:56px;}
+.h2 em{font-style:italic;color:var(--mint);}
+.h2-w{color:var(--white);}
+.h2-w em{color:var(--mint-l);}
+
+/* ─── ABOUT ─── */
+.about-wrap{display:grid;grid-template-columns:1fr 1fr;gap:88px;align-items:center;}
+.about-img-stack{position:relative;height:560px;}
+.aimg-main{position:absolute;top:0;left:0;width:72%;height:88%;overflow:hidden;border-radius:4px;}
+.aimg-main img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+.aimg-main:hover img{transform:scale(1.04);}
+.aimg-accent{position:absolute;bottom:0;right:0;width:52%;height:55%;overflow:hidden;border-radius:4px;border:4px solid var(--cream);}
+.aimg-accent img{width:100%;height:100%;object-fit:cover;}
+.aimg-badge{position:absolute;bottom:52%;left:55%;transform:translate(-50%,50%);background:var(--mint);color:var(--white);padding:16px 20px;border-radius:100px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;z-index:2;}
+.about-text{}
+.about-p{font-size:16px;color:var(--mid);line-height:1.85;font-weight:300;margin-bottom:18px;}
+.about-sig{font-family:'Fraunces',serif;font-size:32px;font-style:italic;color:var(--forest);margin-top:28px;margin-bottom:28px;}
+.about-cta{display:inline-flex;align-items:center;gap:8px;font-size:13px;letter-spacing:.08em;color:var(--forest);text-decoration:none;transition:gap .2s;border-bottom:1px solid var(--mint-ll);padding-bottom:3px;}
+.about-cta:hover{gap:14px;}
+
+/* ─── STATS ─── */
+.stats{background:var(--forest);padding:72px 64px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background-color:rgba(255,255,255,.06);}
+.stat-item{background:var(--forest);padding:48px 40px;text-align:center;}
+.stat-n{font-family:'Fraunces',serif;font-size:64px;font-weight:300;color:var(--white);line-height:1;}
+.stat-n em{color:var(--mint-l);font-style:normal;font-size:40px;}
+.stat-label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:8px;}
+
+/* ─── MENU ─── */
+.menu-head{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;margin-bottom:56px;}
+.menu-note{font-size:15px;color:var(--mid);line-height:1.75;font-weight:300;}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.menu-card{position:relative;overflow:hidden;background:var(--white);cursor:none;}
+.menu-card:first-child{grid-column:span 2;}
+.menu-img{width:100%;height:380px;overflow:hidden;position:relative;}
+.menu-card:first-child .menu-img{height:480px;}
+.menu-img img{width:100%;height:100%;object-fit:cover;transition:transform .7s ease;}
+.menu-card:hover .menu-img img{transform:scale(1.06);}
+.menu-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(26,58,42,.9) 0%,rgba(26,58,42,.3) 40%,transparent 70%);opacity:0;transition:opacity .4s ease;}
+.menu-card:hover .menu-overlay{opacity:1;}
+.menu-overlay-content{position:absolute;bottom:0;left:0;right:0;padding:32px;transform:translateY(16px);opacity:0;transition:all .4s ease;}
+.menu-card:hover .menu-overlay-content{transform:translateY(0);opacity:1;}
+.moc-desc{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;font-weight:300;margin-bottom:12px;}
+.moc-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.moc-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;background:rgba(74,158,106,.3);color:var(--mint-l);border-radius:100px;border:1px solid rgba(122,196,150,.3);}
+.menu-info{padding:24px;}
+.menu-cat{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint);margin-bottom:6px;}
+.menu-name{font-family:'Fraunces',serif;font-size:22px;font-weight:400;margin-bottom:6px;}
+.menu-price{font-family:'Fraunces',serif;font-size:20px;color:var(--forest);}
+.menu-price small{font-size:13px;font-family:'DM Sans',sans-serif;color:var(--mid);}
+
+/* ─── VALUES/MANIFESTO ─── */
+.manifesto{background:var(--forest);padding:120px 64px;position:relative;overflow:hidden;}
+.manifesto::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(74,158,106,.12) 0%,transparent 70%);}
+.manifesto-inner{display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:start;}
+.manifesto-left{}
+.manifesto-quote{font-family:'Fraunces',serif;font-size:clamp(28px,3.5vw,48px);font-style:italic;font-weight:300;color:var(--white);line-height:1.3;margin-bottom:40px;}
+.manifesto-quote em{color:var(--mint-l);font-style:normal;}
+.manifesto-img{width:100%;aspect-ratio:1.2;overflow:hidden;border-radius:4px;position:relative;}
+.manifesto-img img{width:100%;height:100%;object-fit:cover;}
+.manifesto-right{padding-top:16px;}
+.val-list{display:flex;flex-direction:column;gap:0;}
+.val-item{display:flex;gap:24px;padding:32px 0;border-bottom:1px solid rgba(255,255,255,.06);transition:padding .3s;}
+.val-item:first-child{padding-top:0;}
+.val-item:last-child{border-bottom:none;}
+.val-item:hover{padding-left:8px;}
+.val-icon{font-size:28px;flex-shrink:0;width:44px;margin-top:4px;}
+.val-body{}
+.val-title{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--white);margin-bottom:6px;}
+.val-desc{font-size:14px;color:rgba(255,255,255,.4);line-height:1.75;font-weight:300;}
+
+/* ─── CHEF ─── */
+.chef-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:600px;}
+.chef-img{position:relative;overflow:hidden;}
+.chef-img img{width:100%;height:100%;object-fit:cover;transition:transform 6s ease;}
+.chef-img:hover img{transform:scale(1.03);}
+.chef-img-overlay{position:absolute;inset:0;background:linear-gradient(90deg,transparent 50%,var(--warm) 100%);}
+.chef-content{background:var(--warm);padding:80px 64px;display:flex;flex-direction:column;justify-content:center;}
+.chef-quote{font-family:'Fraunces',serif;font-size:clamp(22px,2.5vw,36px);font-style:italic;font-weight:300;color:var(--forest);line-height:1.45;margin-bottom:36px;}
+.chef-name{font-family:'Fraunces',serif;font-size:22px;font-weight:400;color:var(--charcoal);margin-bottom:4px;}
+.chef-role{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint);margin-bottom:24px;}
+.chef-bio{font-size:15px;color:var(--mid);line-height:1.8;font-weight:300;}
+
+/* ─── RESERVATIONS ─── */
+.reservation{background:var(--forest);padding:100px 64px;position:relative;overflow:hidden;}
+.reservation::after{content:'';position:absolute;bottom:-120px;right:-80px;width:400px;height:400px;border-radius:50%;background:rgba(74,158,106,.1);}
+.res-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.res-left{}
+.res-hours{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.rh-item{background:rgba(255,255,255,.04);padding:24px 20px;}
+.rh-day{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px;}
+.rh-time{font-family:'Fraunces',serif;font-size:20px;color:var(--white);font-weight:300;}
+.res-right{}
+.fg{margin-bottom:24px;}
+.fl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:10px;}
+.fi{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.1);padding:12px 0;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:300;outline:none;transition:border-color .3s;}
+.fi:focus{border-color:var(--mint);}
+.fi::placeholder{color:rgba(255,255,255,.15);}
+.fi option{background:var(--forest);color:var(--white);}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.fsub{padding:18px 48px;background:var(--mint);color:var(--white);border:none;font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:.08em;cursor:none;transition:all .25s;border-radius:100px;margin-top:12px;}
+.fsub:hover{background:var(--mint-l);transform:translateY(-2px);box-shadow:0 16px 40px rgba(74,158,106,.35);}
+
+/* ─── INSTAGRAM ─── */
+.insta{padding:80px 64px 112px;}
+.insta-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;}
+.insta-link{font-size:13px;letter-spacing:.08em;color:var(--mid);text-decoration:none;border-bottom:1px solid var(--mint-ll);padding-bottom:2px;transition:color .2s;}
+.insta-link:hover{color:var(--forest);}
+.insta-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;}
+.insta-item{aspect-ratio:1;overflow:hidden;position:relative;}
+.insta-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;filter:saturate(.9);}
+.insta-item:hover img{transform:scale(1.08);filter:saturate(1.1);}
+.insta-item-overlay{position:absolute;inset:0;background:rgba(26,58,42,.5);opacity:0;transition:opacity .3s;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--white);}
+.insta-item:hover .insta-item-overlay{opacity:1;}
+
+/* ─── FOOTER ─── */
+footer{background:var(--charcoal);padding:64px 64px 36px;}
+.foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:56px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.05);}
+.foot-logo{font-family:'Fraunces',serif;font-size:26px;font-style:italic;color:rgba(255,255,255,.5);margin-bottom:12px;}
+.foot-desc{font-size:13px;color:rgba(255,255,255,.2);line-height:1.75;font-weight:300;max-width:240px;}
+.foot-ct{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint);margin-bottom:18px;}
+.foot-links{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.foot-links a{font-size:13px;color:rgba(255,255,255,.22);text-decoration:none;transition:color .2s;}
+.foot-links a:hover{color:var(--mint-l);}
+.foot-bot{display:flex;justify-content:space-between;align-items:center;padding-top:28px;}
+.foot-copy{font-size:12px;color:rgba(255,255,255,.12);}
+.foot-badge{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.08);}
+
+/* MARQUEE */
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* REVEAL (fallback for non-GSAP elements) */
+.rev{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease;}
+.rev.vis{opacity:1;transform:none;}
+.rev-d1{transition-delay:.1s;}.rev-d2{transition-delay:.2s;}.rev-d3{transition-delay:.3s;}.rev-d4{transition-delay:.4s;}
+
+/* BLOB ANIMATION */
+@keyframes blob-morph{
+  0%{d:path("M420,280 C480,200 500,120 420,80 C340,40 240,60 180,120 C120,180 100,280 140,340 C180,400 280,440 360,420 C440,400 480,360 420,280 Z");}
+  25%{d:path("M440,260 C510,170 520,100 440,70 C360,40 250,70 190,140 C130,210 120,310 160,370 C200,430 300,450 380,430 C460,410 490,350 440,260 Z");}
+  50%{d:path("M400,300 C470,210 490,130 400,90 C310,50 210,80 160,150 C110,220 100,320 145,375 C190,430 295,455 370,430 C445,405 470,370 400,300 Z");}
+  75%{d:path("M430,270 C500,180 510,110 430,75 C350,40 245,65 185,135 C125,205 115,300 155,360 C195,420 300,445 378,425 C456,405 485,355 430,270 Z");}
+  100%{d:path("M420,280 C480,200 500,120 420,80 C340,40 240,60 180,120 C120,180 100,280 140,340 C180,400 280,440 360,420 C440,400 480,360 420,280 Z");}
+}
+.blob-path{animation:blob-morph 12s ease-in-out infinite;}
+
+/* Leaf sway */
+@keyframes sway{0%,100%{transform:rotate(-5deg);}50%{transform:rotate(5deg);}}
+@keyframes sway2{0%,100%{transform:rotate(3deg);}50%{transform:rotate(-4deg);}}
+
+@media(max-width:900px){
+  nav,nav.solid,nav.scrolled{padding:16px 24px;}
+  .nav-links{display:none;}
+  .hero-inner{padding:0 24px;}
+  .hero-img-pill{display:none;}
+  .hero-scroll{left:24px;}
+  .sec{padding:72px 24px;}
+  .about-wrap,.manifesto-inner,.chef-wrap,.res-inner{grid-template-columns:1fr;}
+  .about-img-stack{height:380px;}
+  .stats{grid-template-columns:1fr 1fr;padding:40px 24px;}
+  .menu-grid{grid-template-columns:1fr;}
+  .menu-card:first-child{grid-column:span 1;}
+  .insta-grid{grid-template-columns:repeat(3,1fr);}
+  .foot-top{grid-template-columns:1fr 1fr;gap:36px;}
+  footer{padding:40px 24px 28px;}
+  .menu-head{grid-template-columns:1fr;}
+  .fg-row{grid-template-columns:1fr;}
+  .chef-img{height:320px;}
+  .chef-content{padding:60px 24px;}
+  .reservation{padding:72px 24px;}
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-r" id="cur-r"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="logo">Verdure</a>
+  <ul class="nav-links">
+    <li><a href="#propos">Notre histoire</a></li>
+    <li><a href="#menu">La carte</a></li>
+    <li><a href="#valeurs">Nos valeurs</a></li>
+    <li><a href="#reservation">Réserver</a></li>
+  </ul>
+  <a href="#reservation" class="nav-reserve">Réserver une table</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <!-- Breathing blob -->
+  <div class="blob-container">
+    <svg class="blob-svg" viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+      <path class="blob-path" fill="#4a9e6a"
+        d="M420,280 C480,200 500,120 420,80 C340,40 240,60 180,120 C120,180 100,280 140,340 C180,400 280,440 360,420 C440,400 480,360 420,280 Z"/>
+    </svg>
+  </div>
+
+  <!-- Botanical floaters -->
+  <svg class="bota bota-1" style="animation:sway 8s ease-in-out infinite;" width="180" height="280" viewBox="0 0 180 280" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#7ac496">
+      <ellipse cx="90" cy="140" rx="30" ry="120" opacity=".8"/>
+      <ellipse cx="90" cy="140" rx="120" ry="30" opacity=".4" transform="rotate(30 90 140)"/>
+      <ellipse cx="90" cy="140" rx="100" ry="25" opacity=".3" transform="rotate(-30 90 140)"/>
+      <line x1="90" y1="20" x2="90" y2="260" stroke="#4a9e6a" stroke-width="2" opacity=".6"/>
+      <line x1="90" y1="80" x2="40" y2="120" stroke="#4a9e6a" stroke-width="1.5" opacity=".5"/>
+      <line x1="90" y1="130" x2="138" y2="165" stroke="#4a9e6a" stroke-width="1.5" opacity=".5"/>
+      <line x1="90" y1="170" x2="45" y2="205" stroke="#4a9e6a" stroke-width="1.5" opacity=".4"/>
+    </g>
+  </svg>
+  <svg class="bota bota-2" style="animation:sway2 10s ease-in-out infinite;" width="120" height="200" viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="60" cy="100" rx="22" ry="90" fill="#b8dfc8" opacity=".7"/>
+    <ellipse cx="60" cy="100" rx="80" ry="20" fill="#7ac496" opacity=".3" transform="rotate(45 60 100)"/>
+    <line x1="60" y1="10" x2="60" y2="190" stroke="#4a9e6a" stroke-width="1.5" opacity=".5"/>
+  </svg>
+  <svg class="bota bota-3" style="animation:sway 14s ease-in-out infinite;" width="80" height="140" viewBox="0 0 80 140" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="70" rx="14" ry="60" fill="#4a9e6a" opacity=".6"/>
+    <line x1="40" y1="10" x2="40" y2="130" stroke="#3a7a52" stroke-width="1.5" opacity=".4"/>
+  </svg>
+
+  <div class="grain"></div>
+
+  <div class="hero-inner">
+    <div class="hero-label">
+      <div class="hero-dot"></div>
+      <span class="hero-label-txt">Restaurant healthy · Genève · Ouvert 7/7</span>
+    </div>
+    <h1 class="hero-h1">
+      <span class="hero-h1-line"><span class="hero-h1-inner" id="h1-1">Manger</span></span>
+      <span class="hero-h1-line"><span class="hero-h1-inner" id="h1-2"><em style="font-style:italic;color:#7ac496">vivant.</em></span></span>
+    </h1>
+    <p class="hero-sub" id="hero-sub">Une cuisine végétale, locale et créative — où chaque assiette est conçue pour nourrir autant le corps que l'âme.</p>
+    <div class="hero-btns" id="hero-btns">
+      <a href="#menu" class="btn-mint">Découvrir la carte <span class="btn-arrow">→</span></a>
+      <a href="#reservation" class="btn-ghost">Réserver une table</a>
+    </div>
+  </div>
+
+  <!-- Image pill -->
+  <div class="hero-img-pill" id="heroPill">
+    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=85"
+         alt="Assiette healthy colorée"
+         onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=85'">
+  </div>
+
+  <div class="hero-scroll">
+    <div class="hs-line"></div>
+    <span class="hs-txt">Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">100% Biologique <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Produits locaux <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">0 additifs <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Végétal & créatif <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Circuits courts <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Saison & terroir <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Sans gluten possible <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Genève depuis 2019 <span class="marquee-sep">◆</span></span>
+    <!-- Duplicate for seamless loop -->
+    <span class="marquee-item">100% Biologique <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Produits locaux <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">0 additifs <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Végétal & créatif <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Circuits courts <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Saison & terroir <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Sans gluten possible <span class="marquee-sep">◆</span></span>
+    <span class="marquee-item">Genève depuis 2019 <span class="marquee-sep">◆</span></span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="sec" id="propos">
+  <div class="about-wrap">
+    <div class="about-img-stack rev">
+      <div class="aimg-main">
+        <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&q=85"
+             alt="Légumes frais colorés"
+             onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=85'">
+      </div>
+      <div class="aimg-accent">
+        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&q=85"
+             alt="Cuisine healthy"
+             onerror="this.src='https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=85'">
+      </div>
+      <div class="aimg-badge">🌿 Bio certifié</div>
+    </div>
+    <div class="about-text rev rev-d2">
+      <p class="tag">Notre histoire</p>
+      <h2 class="h2">La nature <em>dans l'assiette.</em></h2>
+      <p class="about-p">Verdure est né d'une conviction simple : bien manger ne devrait pas être un luxe. Depuis 2019, nous cuisinons avec des producteurs locaux, des ingrédients de saison et une créativité débordante.</p>
+      <p class="about-p">Chaque plat est pensé pour être aussi beau que nourrissant — des couleurs, des textures, des saveurs qui vous font vous sentir bien après avoir mangé, pas alourdi.</p>
+      <p class="about-p">Notre cuisine est principalement végétale, sans additifs et sans compromis sur le goût.</p>
+      <div class="about-sig">Léa & Thomas</div>
+      <a href="#menu" class="about-cta">Voir la carte →</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item rev">
+    <div class="stat-n" data-target="100">0<em>%</em></div>
+    <div class="stat-label">Ingrédients biologiques</div>
+  </div>
+  <div class="stat-item rev rev-d1">
+    <div class="stat-n" data-target="0">0<em> additif</em></div>
+    <div class="stat-label">Zéro additif alimentaire</div>
+  </div>
+  <div class="stat-item rev rev-d2">
+    <div class="stat-n" data-target="12">0<em>+</em></div>
+    <div class="stat-label">Producteurs locaux</div>
+  </div>
+  <div class="stat-item rev rev-d3">
+    <div class="stat-n" data-target="4">0<em>.8★</em></div>
+    <div class="stat-label">Note Google moyenne</div>
+  </div>
+</div>
+
+<!-- MENU -->
+<section class="sec sec-warm" id="menu">
+  <div class="menu-head">
+    <div>
+      <p class="tag rev">La carte du moment</p>
+      <h2 class="h2 rev" style="margin-bottom:0;">Saison & <em>créativité.</em></h2>
+    </div>
+    <p class="menu-note rev">Notre carte change chaque semaine selon les arrivages. Ce que vous voyez ici reflète notre esprit — chaque assiette est une surprise.</p>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card rev">
+      <div class="menu-img">
+        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1000&q=85"
+             alt="Buddha bowl coloré"
+             onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1000&q=85'">
+        <div class="menu-overlay">
+          <div class="menu-overlay-content">
+            <p class="moc-desc">Riz complet, pousses d'épinard, avocat, edamame, radis, grenade, vinaigrette au miso et sésame grillé.</p>
+            <div class="moc-tags">
+              <span class="moc-tag">Végétalien</span>
+              <span class="moc-tag">Sans gluten</span>
+              <span class="moc-tag">Signature</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-info">
+        <p class="menu-cat">Notre signature</p>
+        <h3 class="menu-name">Le Grand Bowl Verdure</h3>
+        <p class="menu-price">CHF 22 <small>/ assiette</small></p>
+      </div>
+    </div>
+    <div class="menu-card rev rev-d1">
+      <div class="menu-img">
+        <img src="https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=600&q=85"
+             alt="Soupe de légumes"
+             onerror="this.src='https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=85'">
+        <div class="menu-overlay">
+          <div class="menu-overlay-content">
+            <p class="moc-desc">Velouté de courge butternut rôtie, crème de coco, huile de potimarron et graines de courge torréfiées.</p>
+            <div class="moc-tags"><span class="moc-tag">Vegan</span><span class="moc-tag">Saison</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-info">
+        <p class="menu-cat">Entrée chaude</p>
+        <h3 class="menu-name">Velouté de courge rôtie</h3>
+        <p class="menu-price">CHF 14 <small>/ assiette</small></p>
+      </div>
+    </div>
+    <div class="menu-card rev rev-d1">
+      <div class="menu-img">
+        <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=85"
+             alt="Salade fraîche"
+             onerror="this.src='https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=85'">
+        <div class="menu-overlay">
+          <div class="menu-overlay-content">
+            <p class="moc-desc">Quinoa tricolore, légumes rôtis, herbes fraîches, vinaigrette citron-tahini et falafels maison.</p>
+            <div class="moc-tags"><span class="moc-tag">Protéiné</span><span class="moc-tag">Vegan</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-info">
+        <p class="menu-cat">Plat principal</p>
+        <h3 class="menu-name">Quinoa & falafels</h3>
+        <p class="menu-price">CHF 19 <small>/ assiette</small></p>
+      </div>
+    </div>
+    <div class="menu-card rev rev-d2">
+      <div class="menu-img">
+        <img src="https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=600&q=85"
+             alt="Tartines healthy"
+             onerror="this.src='https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=85'">
+        <div class="menu-overlay">
+          <div class="menu-overlay-content">
+            <p class="moc-desc">Pain au levain maison, houmous maison, avocat, tomates cerises confites, microgreens et zaatar.</p>
+            <div class="moc-tags"><span class="moc-tag">Fait maison</span><span class="moc-tag">Végétalien</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-info">
+        <p class="menu-cat">Brunch</p>
+        <h3 class="menu-name">Tartines avocado</h3>
+        <p class="menu-price">CHF 16 <small>/ assiette</small></p>
+      </div>
+    </div>
+    <div class="menu-card rev rev-d2">
+      <div class="menu-img">
+        <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=85"
+             alt="Dessert healthy"
+             onerror="this.src='https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&q=85'">
+        <div class="menu-overlay">
+          <div class="menu-overlay-content">
+            <p class="moc-desc">Cheesecake cru aux noix de cajou, coulis de framboise, sucré au sirop d'érable. Sans gluten, sans lactose.</p>
+            <div class="moc-tags"><span class="moc-tag">Raw</span><span class="moc-tag">Sans lactose</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-info">
+        <p class="menu-cat">Dessert</p>
+        <h3 class="menu-name">Cheesecake cajou & framboise</h3>
+        <p class="menu-price">CHF 12 <small>/ part</small></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO / VALUES -->
+<section class="manifesto" id="valeurs">
+  <div class="manifesto-inner">
+    <div class="manifesto-left rev">
+      <p class="tag tag-light">Notre philosophie</p>
+      <p class="manifesto-quote">"Nous croyons que <em>manger bien</em> est un acte politique, écologique et profondément <em>humain.</em>"</p>
+      <div class="manifesto-img">
+        <img src="https://images.unsplash.com/photo-1464454709131-ffd692591ee5?w=800&q=85"
+             alt="Marché légumes frais"
+             onerror="this.src='https://images.unsplash.com/photo-1543353071-873f17a7a088?w=800&q=85'">
+      </div>
+    </div>
+    <div class="manifesto-right rev rev-d2">
+      <h2 class="h2 h2-w" style="margin-bottom:40px;">Nos <em>engagements.</em></h2>
+      <div class="val-list">
+        <div class="val-item">
+          <div class="val-icon">🌱</div>
+          <div class="val-body">
+            <h3 class="val-title">100% biologique</h3>
+            <p class="val-desc">Tous nos ingrédients sont certifiés bio. Pas de compromis, même quand ça coûte plus cher.</p>
+          </div>
+        </div>
+        <div class="val-item">
+          <div class="val-icon">🚜</div>
+          <div class="val-body">
+            <h3 class="val-title">Circuits courts</h3>
+            <p class="val-desc">Nos 12 producteurs sont tous à moins de 80km de Genève. On les connaît par leur prénom.</p>
+          </div>
+        </div>
+        <div class="val-item">
+          <div class="val-icon">♻️</div>
+          <div class="val-body">
+            <h3 class="val-title">Zéro gaspillage</h3>
+            <p class="val-desc">Tout ce qui n'est pas utilisé le soir devient le bouillon du lendemain. Ou le compost de demain.</p>
+          </div>
+        </div>
+        <div class="val-item">
+          <div class="val-icon">🌍</div>
+          <div class="val-body">
+            <h3 class="val-title">Impact positif</h3>
+            <p class="val-desc">1% de notre chiffre d'affaires va à des associations locales de lutte contre la précarité alimentaire.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHEF -->
+<div class="chef-wrap" id="chef">
+  <div class="chef-img">
+    <img src="https://images.unsplash.com/photo-1566554273541-37a9ca77b91f?w=900&q=85"
+         alt="Chef en cuisine"
+         onerror="this.src='https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=85'">
+    <div class="chef-img-overlay"></div>
+  </div>
+  <div class="chef-content rev">
+    <p class="tag">La cheffe</p>
+    <p class="chef-quote">"Je cuisine des légumes depuis 12 ans. Ils ne m'ont jamais déçue — c'est plus que je peux dire pour beaucoup d'autres ingrédients."</p>
+    <h3 class="chef-name">Léa Fontaine</h3>
+    <p class="chef-role">Cheffe & co-fondatrice</p>
+    <p class="chef-bio">Formée à l'Institut Paul Bocuse puis à Londres dans les cuisines végétales de Ottolenghi, Léa est revenue en Suisse avec une conviction : la cuisine végétale n'a rien à envier à aucune autre. Verdure est son manifeste.</p>
+  </div>
+</div>
+
+<!-- RESERVATION -->
+<section class="reservation" id="reservation">
+  <div class="res-inner">
+    <div class="res-left rev">
+      <p class="tag tag-light">Réserver</p>
+      <h2 class="h2 h2-w">Votre table <em>vous attend.</em></h2>
+      <p style="font-size:15px;color:rgba(255,255,255,.4);line-height:1.75;font-weight:300;max-width:380px;">Réservations recommandées le week-end. Nous accueillons également les groupes sur demande.</p>
+      <div class="res-hours">
+        <div class="rh-item">
+          <p class="rh-day">Lun – Ven</p>
+          <p class="rh-time">11h30 – 22h00</p>
+        </div>
+        <div class="rh-item">
+          <p class="rh-day">Sam – Dim</p>
+          <p class="rh-time">10h00 – 22h30</p>
+        </div>
+        <div class="rh-item">
+          <p class="rh-day">Brunch</p>
+          <p class="rh-time">Sam & Dim · 10h–14h</p>
+        </div>
+        <div class="rh-item">
+          <p class="rh-day">Cuisine fermée</p>
+          <p class="rh-time">À 21h30</p>
+        </div>
+      </div>
+    </div>
+    <div class="res-right rev rev-d2">
+      <form>
+        <div class="fg-row">
+          <div class="fg"><label class="fl">Prénom</label><input type="text" class="fi" placeholder="Sophie"></div>
+          <div class="fg"><label class="fl">Nom</label><input type="text" class="fi" placeholder="Dupont"></div>
+        </div>
+        <div class="fg-row">
+          <div class="fg"><label class="fl">Date</label><input type="date" class="fi"></div>
+          <div class="fg"><label class="fl">Heure</label>
+            <select class="fi">
+              <option>12h00</option><option>12h30</option><option>13h00</option>
+              <option>19h00</option><option>19h30</option><option>20h00</option><option>20h30</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg-row">
+          <div class="fg"><label class="fl">Couverts</label>
+            <select class="fi">
+              <option>1 personne</option><option>2 personnes</option><option>3 personnes</option>
+              <option>4 personnes</option><option>5–6 personnes</option><option>7+ personnes</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Email</label><input type="email" class="fi" placeholder="sophie@example.com"></div>
+        </div>
+        <div class="fg"><label class="fl">Régime / allergies (optionnel)</label><input type="text" class="fi" placeholder="Sans gluten, intolérance..."></div>
+        <button type="submit" class="fsub">Confirmer la réservation →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- INSTAGRAM GRID -->
+<section class="insta">
+  <div class="insta-head rev">
+    <div>
+      <p class="tag">Nos créations</p>
+      <h2 class="h2" style="margin-bottom:0;">Chaque assiette, <em>une œuvre.</em></h2>
+    </div>
+    <a href="#" class="insta-link">@verdure.geneve →</a>
+  </div>
+  <div class="insta-grid">
+    <div class="insta-item rev">
+      <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" alt="Bowl" onerror="this.parentElement.style.background='#4a9e6a'">
+      <div class="insta-item-overlay">🌿</div>
+    </div>
+    <div class="insta-item rev rev-d1">
+      <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" alt="Salade" onerror="this.parentElement.style.background='#3a7a52'">
+      <div class="insta-item-overlay">🥗</div>
+    </div>
+    <div class="insta-item rev rev-d2">
+      <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80" alt="Légumes" onerror="this.parentElement.style.background='#2a5a3e'">
+      <div class="insta-item-overlay">🥦</div>
+    </div>
+    <div class="insta-item rev rev-d3">
+      <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80" alt="Dessert" onerror="this.parentElement.style.background='#4a9e6a'">
+      <div class="insta-item-overlay">🍓</div>
+    </div>
+    <div class="insta-item rev rev-d4">
+      <img src="https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80" alt="Tartine" onerror="this.parentElement.style.background='#3a7a52'">
+      <div class="insta-item-overlay">🥑</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <div>
+      <div class="foot-logo">Verdure</div>
+      <p class="foot-desc">Restaurant healthy et végétal à Genève. Cuisine biologique, locale et sans additifs depuis 2019.</p>
+    </div>
+    <div>
+      <p class="foot-ct">Navigation</p>
+      <ul class="foot-links">
+        <li><a href="#propos">Notre histoire</a></li>
+        <li><a href="#menu">La carte</a></li>
+        <li><a href="#valeurs">Nos valeurs</a></li>
+        <li><a href="#reservation">Réserver</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="foot-ct">Horaires</p>
+      <ul class="foot-links">
+        <li><a href="#">Lun–Ven · 11h30–22h</a></li>
+        <li><a href="#">Sam–Dim · 10h–22h30</a></li>
+        <li><a href="#">Brunch · Sam & Dim</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="foot-ct">Contact</p>
+      <ul class="foot-links">
+        <li><a href="#">Rue de la Croix-d'Or 12</a></li>
+        <li><a href="#">1204 Genève</a></li>
+        <li><a href="#">+41 22 xxx xx xx</a></li>
+        <li><a href="#">@verdure.geneve</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <p class="foot-copy">© 2025 Verdure · Genève · Tous droits réservés</p>
+    <p class="foot-badge">Démonstration — Alto Studio</p>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── Cursor
+const cur=document.getElementById('cur'),cr=document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function a(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cr.style.left=rx+'px';cr.style.top=ry+'px';requestAnimationFrame(a);})();
+document.querySelectorAll('a,button,.menu-card,.val-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cr.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>cr.classList.remove('hov'));
+});
+
+// ── Nav
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// ── GSAP Hero text reveal
+gsap.to('#h1-1',{translateY:'0%',duration:1.1,ease:'power4.out',delay:.3});
+gsap.to('#h1-2',{translateY:'0%',duration:1.1,ease:'power4.out',delay:.55});
+gsap.to('#hero-sub',{opacity:1,duration:1,ease:'power2.out',delay:.9});
+gsap.to('#hero-btns',{opacity:1,duration:1,ease:'power2.out',delay:1.1});
+gsap.to('#heroPill',{opacity:1,x:0,duration:1.2,ease:'power3.out',delay:.6});
+
+// ── GSAP Blob breathing (scale)
+gsap.to('.blob-path',{
+  scaleX:1.08, scaleY:.94, transformOrigin:'center center',
+  duration:6, ease:'sine.inOut', repeat:-1, yoyo:true
+});
+
+// ── Hero parallax
+gsap.to('.hero-img-pill img',{
+  y:-60,
+  scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}
+});
+
+// ── Stats counter
+document.querySelectorAll('.stat-n[data-target]').forEach(el=>{
+  const target = parseInt(el.dataset.target);
+  if(target === 0){
+    ScrollTrigger.create({
+      trigger:el,start:'top 80%',once:true,
+      onEnter:()=>{ el.innerHTML='0<em> additif</em>'; }
+    });
+    return;
+  }
+  ScrollTrigger.create({
+    trigger:el, start:'top 80%', once:true,
+    onEnter:()=>{
+      let start=0;
+      const suffix = el.innerHTML.match(/<em>(.*?)<\/em>/)?.[1] || '';
+      const step = Math.ceil(target/40);
+      const timer = setInterval(()=>{
+        start+=step;
+        if(start>=target){start=target;clearInterval(timer);}
+        el.innerHTML = start + '<em>'+suffix+'</em>';
+      },30);
+    }
+  });
+});
+
+// ── GSAP scroll reveals for .rev elements
+document.querySelectorAll('.rev').forEach((el,i)=>{
+  gsap.fromTo(el,
+    {opacity:0, y:32},
+    {opacity:1, y:0, duration:.9, ease:'power2.out',
+     scrollTrigger:{trigger:el, start:'top 85%', once:true},
+     delay: el.classList.contains('rev-d1')?.1 : el.classList.contains('rev-d2')?.2 : el.classList.contains('rev-d3')?.3 : el.classList.contains('rev-d4')?.4 : 0
+    }
+  );
+});
+
+// ── Menu cards stagger on enter
+gsap.fromTo('.menu-card',
+  {opacity:0,y:40},
+  {opacity:1,y:0,duration:.8,stagger:.12,ease:'power2.out',
+   scrollTrigger:{trigger:'.menu-grid',start:'top 75%',once:true}
+  }
+);
+
+// ── Instagram grid stagger
+gsap.fromTo('.insta-item',
+  {opacity:0,scale:.92},
+  {opacity:1,scale:1,duration:.6,stagger:.08,ease:'power2.out',
+   scrollTrigger:{trigger:'.insta-grid',start:'top 80%',once:true}
+  }
+);
+
+// ── Slow hero image zoom on load
+window.addEventListener('load',()=>{
+  const img = document.querySelector('.hero-img-pill img');
+  if(img) gsap.to(img,{scale:1,duration:10,ease:'none'});
+});
+</script>
+</body>
+</html>
